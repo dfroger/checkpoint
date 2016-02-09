@@ -23,6 +23,19 @@ def list_to_crs(list_of_items):
     index = np.array(index)
     return data, index
 
+def set_iterable_converter(h5obj, converter):
+    if converter in [tuple, list, set]:
+        h5obj.attrs['iterable'] = converter.__name__
+
+def dump_crs(group, name, list_of_items):
+    data, index = list_to_crs(list_of_items)
+    subgroup = group.create_group(name)
+    subgroup.create_dataset('data', data=data)
+    subgroup.create_dataset('index', data=index)
+    items = list_of_items[0]
+    items_type = type(items)
+    set_iterable_converter(subgroup, items_type)
+
 class Dumper:
 
     def __init__(self, group, dumped_instance, dump_method='dump'):
@@ -44,14 +57,7 @@ class Dumper:
 
     def crs(self, name):
         list_of_items = getattr(self.dumped_instance, name)
-        data, index = list_to_crs(list_of_items)
-        subgroup = self.group.create_group(name)
-        subgroup.create_dataset('data', data=data)
-        subgroup.create_dataset('index', data=index)
-        items = list_of_items[0]
-        items_type = type(items)
-        if items_type in [tuple, list, set]:
-            subgroup.attrs['iterable'] = items_type.__name__
+        dump_crs(self.group, name, list_of_items)
 
     def dict(self, name):
         d = getattr(self.dumped_instance, name)
@@ -73,8 +79,7 @@ class Dumper:
         dset = group.create_dataset(name, data=obj_list)
         obj = obj_list[0]
         obj_type = type(obj)
-        if obj_type in [tuple, list, set]:
-            dset.attrs['iterable'] = obj_type.__name__
+        set_iterable_converter(dset, obj_type)
 
 if __name__ == '__main__':
     doctest.testmod()

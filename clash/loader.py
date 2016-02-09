@@ -24,6 +24,18 @@ def crs_to_list(data, index, items_container=list):
         list_of_items.append(items)
     return list_of_items
 
+def get_iterable_converter(h5obj):
+    converter = h5obj.attrs.get('iterable', '')
+    return eval(converter) if converter else lambda obj: obj
+
+def load_crs(group, name):
+    subgroup = group[name]
+    data = subgroup['data'].value
+    index = subgroup['index'].value
+    t = get_iterable_converter(subgroup)
+    list_of_items = crs_to_list(data, index, items_container=t)
+    return list_of_items
+
 class Loader:
 
     def __init__(self, group, loaded_instance, load_method='load'):
@@ -44,11 +56,7 @@ class Loader:
         setattr(self.loaded_instance, name,  s)
 
     def crs(self, name):
-        subgroup = self.group[name]
-        data = subgroup['data'].value
-        index = subgroup['index'].value
-        t = self._get_iterable_converter(subgroup)
-        list_of_items = crs_to_list(data, index, items_container=t)
+        list_of_items = load_crs(self.group, name)
         setattr(self.loaded_instance, name, list_of_items)
 
     def dict(self, name, dict_type=dict):
@@ -68,9 +76,5 @@ class Loader:
         setattr(self.loaded_instance, name, inst)
 
     def _load_obj_list(self, dset):
-        t = self._get_iterable_converter(dset)
+        t = get_iterable_converter(dset)
         return [t(obj) for obj in dset.value]
-
-    def _get_iterable_converter(self, h5obj):
-        type_name = h5obj.attrs.get('iterable', '')
-        return eval(type_name) if type_name else lambda obj: obj
