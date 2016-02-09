@@ -1,2 +1,5 @@
 clash.egg-info/
+
 __pycache__/
+
+*.h5
