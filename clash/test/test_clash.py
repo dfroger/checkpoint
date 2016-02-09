@@ -4,7 +4,7 @@ import numpy as np
 import h5py
 
 from clash.test.data import FooArray, FooScalar, FooCRS, \
-    FooDict, FooYAML, FooRecurse
+    FooDict, FooYAML, FooRecurse, FooDictCRS
 
 def h5tmp():
     """HDF5 file, in memory only: no written to the disk"""
@@ -106,6 +106,26 @@ class TestPersistDict(unittest.TestCase):
             foo_bis = FooDict.load(f)
             for array1, array2 in zip(foo.data.values(), foo_bis.data.values()):
                 np.testing.assert_array_equal(array1, array2)
+
+class TestPersistDictCRS(unittest.TestCase):
+    """Test crs list dump and load"""
+
+    def check(self, data):
+        foo = FooDictCRS(data)
+        with h5tmp() as f:
+            foo.dump(f)
+            foo_bis = FooDictCRS.load(f)
+            self.assertDictEqual(foo_bis.data, foo.data)
+
+    def test_list(self):
+        data = {
+            (0,1): [1,5,2],
+            (2,3): [6,0],
+            (4,5): [],
+            (6,7): [1,3,4],
+            (8,9): [7],
+        }
+        self.check(data)
 
 class TestPersistYAML(unittest.TestCase):
     """Test numpy array dump and load"""

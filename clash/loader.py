@@ -1,5 +1,6 @@
-import yaml
+import builtins
 
+import yaml
 import numpy as np
 
 def create_loader(LoadedClass, group):
@@ -59,10 +60,17 @@ class Loader:
         list_of_items = load_crs(self.group, name)
         setattr(self.loaded_instance, name, list_of_items)
 
-    def dict(self, name, dict_type=dict):
+    def dict(self, name, dict_type=builtins.dict):
         subgroup = self.group[name]
         keys = self._load_obj_list(subgroup['keys'])
         values = self._load_obj_list(subgroup['values'])
+        d = dict_type(zip(keys,values))
+        setattr(self.loaded_instance, name, d)
+
+    def dict_crs(self, name, dict_type=builtins.dict):
+        subgroup = self.group[name]
+        keys = self._load_obj_list(subgroup['keys'])
+        values = load_crs(subgroup, 'values')
         d = dict_type(zip(keys,values))
         setattr(self.loaded_instance, name, d)
 

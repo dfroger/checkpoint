@@ -65,6 +65,12 @@ class Dumper:
         self._dump_obj_list('keys', subgroup, list(d.keys()))
         self._dump_obj_list('values', subgroup, list(d.values()))
 
+    def dict_crs(self, name):
+        d = getattr(self.dumped_instance, name)
+        subgroup = self.group.create_group(name)
+        self._dump_obj_list('keys', subgroup, list(d.keys()))
+        dump_crs(subgroup, "values", list(d.values()))
+
     def yaml(self, name):
         obj = getattr(self.dumped_instance, name)
         data = yaml.dump(obj)

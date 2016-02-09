@@ -60,6 +60,21 @@ class FooDict:
         loader.dict('data')
         return foo
 
+class FooDictCRS:
+
+    def __init__(self, data):
+        self.data = data
+
+    def dump(self, group):
+        dumper = Dumper(group, self)
+        dumper.dict_crs('data')
+
+    @staticmethod
+    def load(group):
+        foo, loader = create_loader(FooDict, group)
+        loader.dict_crs('data')
+        return foo
+
 class FooYAML:
 
     def __init__(self, data):
