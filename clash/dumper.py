@@ -23,9 +23,12 @@ def list_to_crs(list_of_items):
     index = np.array(index)
     return data, index
 
-def set_iterable_converter(h5obj, converter):
-    if converter in [tuple, list, set]:
-        h5obj.attrs['iterable'] = converter.__name__
+def need_conversion(obj_type):
+    return obj_type in [tuple, list, set, frozenset]
+
+def set_iterable_converter(h5obj, obj_type):
+    if need_conversion(obj_type):
+        h5obj.attrs['iterable'] = obj_type.__name__
 
 def dump_crs(group, name, list_of_items):
     data, index = list_to_crs(list_of_items)
@@ -82,10 +85,13 @@ class Dumper:
         obj.dump( self.group.create_group(name) )
 
     def _dump_obj_list(self, name, group, obj_list):
-        dset = group.create_dataset(name, data=obj_list)
         obj = obj_list[0]
         obj_type = type(obj)
-        set_iterable_converter(dset, obj_type)
+        if need_conversion(obj_type):
+            dset = group.create_dataset(name, data=[list(obj) for obj in obj_list])
+            set_iterable_converter(dset, obj_type)
+        else:
+            dset = group.create_dataset(name, data=obj_list)
 
 if __name__ == '__main__':
     doctest.testmod()

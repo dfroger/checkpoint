@@ -92,6 +92,11 @@ class TestPersistDict(unittest.TestCase):
         data = {12: [1,2], 34: [3,4]}
         self.check(data)
 
+    def test_frozenset2list(self):
+        data = { frozenset((1,2)): [10,20],
+                 frozenset((3,4)): [30,40], }
+        self.check(data)
+
     def test_npint2list(self):
         a,b = np.array( [12, 34] )
         data = {a: [1,2], b: [3,4]}
