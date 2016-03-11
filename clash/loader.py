@@ -43,6 +43,22 @@ class Loader:
         self.group = group
         self.loaded_instance = loaded_instance
 
+    def __call__(self, name, store_as='array'):
+        if store_as == 'array':
+            return self.array(name)
+        elif store_as == 'scalar':
+            return self.scalar(name)
+        elif store_as == 'crs':
+            return self.crs(name)
+        elif store_as == 'dict':
+            return self.dict(name)
+        elif store_as == 'dict_crs':
+            return self.dict_crs(name)
+        elif store_as == 'yaml':
+            return self.yaml(name)
+        else:
+            raise ValueError("No such type: %r" % (store_as,))
+
     def array(self, name):
         a = self.group[name].value
         if self.loaded_instance:

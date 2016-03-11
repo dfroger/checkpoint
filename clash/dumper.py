@@ -45,6 +45,22 @@ class Dumper:
         self.group = group
         self.dumped_instance = dumped_instance
 
+    def __call__(self, name, store_as='array'):
+        if store_as == 'array':
+            self.array(name)
+        elif store_as == 'scalar':
+            self.scalar(name)
+        elif store_as == 'crs':
+            self.crs(name)
+        elif store_as == 'dict':
+            self.dict(name)
+        elif store_as == 'dict_crs':
+            self.dict_crs(name)
+        elif store_as == 'yaml':
+            self.yaml(name)
+        else:
+            raise ValueError("No such type: %r" % (store_as,))
+
     def array(self, name):
         a = getattr(self.dumped_instance, name)
         self.group.create_dataset(name, data=a)
