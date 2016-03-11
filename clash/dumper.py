@@ -41,10 +41,9 @@ def dump_crs(group, name, list_of_items):
 
 class Dumper:
 
-    def __init__(self, group, dumped_instance, dump_method='dump'):
+    def __init__(self, group, dumped_instance):
         self.group = group
         self.dumped_instance = dumped_instance
-        self.dump_method = dump_method
 
     def array(self, name):
         a = getattr(self.dumped_instance, name)
