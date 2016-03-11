@@ -39,14 +39,16 @@ def load_crs(group, name):
 
 class Loader:
 
-    def __init__(self, group, loaded_instance, load_method='load'):
+    def __init__(self, group, loaded_instance=None):
         self.group = group
         self.loaded_instance = loaded_instance
-        self.load_method = load_method
 
     def array(self, name):
         a = self.group[name].value
-        setattr(self.loaded_instance, name,  a)
+        if self.loaded_instance:
+            setattr(self.loaded_instance, name,  a)
+        else:
+            return a
 
     def arrays(self, *names):
         for name in names:
@@ -54,13 +56,19 @@ class Loader:
 
     def scalar(self, name):
         s = self.group[name][()]
-        setattr(self.loaded_instance, name,  s)
+        if self.loaded_instance:
+            setattr(self.loaded_instance, name,  s)
+        else:
+            return s
 
     def crs(self, name):
         list_of_items = load_crs(self.group, name)
-        setattr(self.loaded_instance, name, list_of_items)
+        if self.loaded_instance:
+            setattr(self.loaded_instance, name, list_of_items)
+        else:
+            return list_of_items
 
-    def dict(self, name, dict_type=builtins.dict):
+    def dict(self, name):
         subgroup = self.group[name]
         keys = self._load_obj_list(subgroup['keys'])
         values = self._load_obj_list(subgroup['values'])
@@ -69,9 +77,12 @@ class Loader:
             d = dict(zip(keys,values))
         else:
             d = OrderedDict(zip(keys,values))
-        setattr(self.loaded_instance, name, d)
+        if self.loaded_instance:
+            setattr(self.loaded_instance, name, d)
+        else:
+            return d
 
-    def dict_crs(self, name, dict_type=builtins.dict):
+    def dict_crs(self, name):
         subgroup = self.group[name]
         keys = self._load_obj_list(subgroup['keys'])
         values = load_crs(subgroup, 'values')
@@ -80,16 +91,25 @@ class Loader:
             d = dict(zip(keys,values))
         else:
             d = OrderedDict(zip(keys,values))
-        setattr(self.loaded_instance, name, d)
+        if self.loaded_instance:
+            setattr(self.loaded_instance, name, d)
+        else:
+            return d
 
     def yaml(self, name):
         data = self.group[name].value
         obj = yaml.load(data)
-        setattr(self.loaded_instance, name, obj)
+        if self.loaded_instance:
+            setattr(self.loaded_instance, name, obj)
+        else:
+            return obj
     
     def recurse(self, RecursivelyLoadedClass, name):
         inst = RecursivelyLoadedClass.load(self.group[name])
-        setattr(self.loaded_instance, name, inst)
+        if self.loaded_instance:
+            setattr(self.loaded_instance, name, inst)
+        else:
+            return inst
 
     def _load_obj_list(self, dset):
         t = get_iterable_converter(dset)
