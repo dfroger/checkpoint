@@ -1,4 +1,4 @@
-import collections
+from collections import OrderedDict
 
 import yaml
 import numpy as np
@@ -66,12 +66,20 @@ class Dumper:
         subgroup = self.group.create_group(name)
         self._dump_obj_list('keys', subgroup, list(d.keys()))
         self._dump_obj_list('values', subgroup, list(d.values()))
+        if isinstance(d, OrderedDict):
+            subgroup.create_dataset('ordered', data=1)
+        else:
+            subgroup.create_dataset('ordered', data=0)
 
     def dict_crs(self, name):
         d = getattr(self.dumped_instance, name)
         subgroup = self.group.create_group(name)
         self._dump_obj_list('keys', subgroup, list(d.keys()))
         dump_crs(subgroup, "values", list(d.values()))
+        if isinstance(d, OrderedDict):
+            subgroup.create_dataset('ordered', data=1)
+        else:
+            subgroup.create_dataset('ordered', data=0)
 
     def yaml(self, name):
         obj = getattr(self.dumped_instance, name)

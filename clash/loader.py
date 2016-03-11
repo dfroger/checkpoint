@@ -1,4 +1,4 @@
-import builtins
+from collections import OrderedDict
 
 import yaml
 import numpy as np
@@ -64,14 +64,22 @@ class Loader:
         subgroup = self.group[name]
         keys = self._load_obj_list(subgroup['keys'])
         values = self._load_obj_list(subgroup['values'])
-        d = dict_type(zip(keys,values))
+        ordered = subgroup['ordered'][()]
+        if ordered:
+            d = dict(zip(keys,values))
+        else:
+            d = OrderedDict(zip(keys,values))
         setattr(self.loaded_instance, name, d)
 
     def dict_crs(self, name, dict_type=builtins.dict):
         subgroup = self.group[name]
         keys = self._load_obj_list(subgroup['keys'])
         values = load_crs(subgroup, 'values')
-        d = dict_type(zip(keys,values))
+        ordered = subgroup['ordered'][()]
+        if ordered:
+            d = dict(zip(keys,values))
+        else:
+            d = OrderedDict(zip(keys,values))
         setattr(self.loaded_instance, name, d)
 
     def yaml(self, name):
