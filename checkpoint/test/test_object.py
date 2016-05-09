@@ -10,47 +10,53 @@ def h5tmp():
     return h5py.File('tmp.h5', driver='core', backing_store=False)
 
 class Foo:
-
     def __init__(self, data):
         self.data = data
 
-class TestReadWriteArray(unittest.TestCase):
+class Bar:
+    def __init(self):
+        self.data = None
+
+class TestArray(unittest.TestCase):
     """Test numpy array write and read"""
 
     def test_int(self):
         data = np.arange(5)
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.array('data')
-            reader = Reader(f)
-            data_bis = reader.array('data')
-        np.testing.assert_array_equal(data, data_bis)
+            reader = Reader(f, to_object=bar)
+            reader.array('data')
+        np.testing.assert_array_equal(foo.data, bar.data)
 
-class TestReadWriteScalar(unittest.TestCase):
+class TestScalar(unittest.TestCase):
     """Test scalar write and read"""
 
     def test_int(self):
         data = 5
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.scalar('data')
-            reader = Reader(f)
-            data_bis = reader.scalar('data')
-            self.assertEqual(data, data_bis)
+            reader = Reader(f, to_object=bar)
+            reader.scalar('data')
+            self.assertEqual(foo.data, bar.data)
 
-class TestPersistCRS(unittest.TestCase):
+class TestCRS(unittest.TestCase):
     """Test crs list write and read"""
 
     def check(self, data):
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.crs('data')
-            reader = Reader(f)
-            data_bis = reader.crs('data')
-            self.assertListEqual(data, data_bis)
+            reader = Reader(f, to_object=bar)
+            reader.crs('data')
+            self.assertListEqual(foo.data, bar.data)
 
     def test_list(self):
         data = [ [1,5,2], [6,0], [], [1,3,4], [7] ]
@@ -69,15 +75,19 @@ class TestPersistCRS(unittest.TestCase):
                  np.array([1,3,4]), np.array([7,]) ]
 
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.crs('data')
-            reader = Reader(f)
-            data_bis = reader.crs('data')
-            for array1, array2 in zip(data, data_bis):
-                np.testing.assert_array_equal(array1, array2)
+            reader = Reader(f, to_object=bar)
+            reader.crs('data')
+            np.testing.assert_array_equal(foo.data[0], bar.data[0])
+            np.testing.assert_array_equal(foo.data[1], bar.data[1])
+            np.testing.assert_array_equal(foo.data[2], bar.data[2])
+            np.testing.assert_array_equal(foo.data[3], bar.data[3])
+            np.testing.assert_array_equal(foo.data[4], bar.data[4])
 
-class TestPersistDict(unittest.TestCase):
+class TestDict(unittest.TestCase):
     """Test dictionnary write and read
     
     Note that write Python type (int, float) are loaded as Numpy types
@@ -87,12 +97,13 @@ class TestPersistDict(unittest.TestCase):
 
     def check(self, data):
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.dict('data')
-            reader = Reader(f)
-            data_bis = reader.dict('data')
-            self.assertDictEqual(data, data_bis)
+            reader = Reader(f, to_object=bar)
+            reader.dict('data')
+            self.assertDictEqual(foo.data, bar.data)
 
     def test_tuple2list(self):
         data = {(1,2): [10,20], (3,4): [30,40]}
@@ -120,25 +131,27 @@ class TestPersistDict(unittest.TestCase):
         data = {12: np.array([1,2]), 34: np.array([3,4])}
 
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.dict('data')
-            reader = Reader(f)
-            data_bis = reader.dict('data')
-            for array1, array2 in zip(data.values(), data_bis.values()):
-                np.testing.assert_array_equal(array1, array2)
+            reader = Reader(f, to_object=bar)
+            reader.dict('data')
+            np.testing.assert_array_equal(foo.data[12], bar.data[12])
+            np.testing.assert_array_equal(foo.data[34], bar.data[34])
 
-class TestPersistDictCRS(unittest.TestCase):
+class TestDictCRS(unittest.TestCase):
     """Test crs list write and read"""
 
     def check(self, data):
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.dict_crs('data')
-            reader = Reader(f)
-            data_bis = reader.dict_crs('data')
-            self.assertDictEqual(data, data_bis)
+            reader = Reader(f, to_object=bar)
+            reader.dict_crs('data')
+            self.assertDictEqual(foo.data, bar.data)
 
     def test_list(self):
         data = {
@@ -150,18 +163,19 @@ class TestPersistDictCRS(unittest.TestCase):
         }
         self.check(data)
 
-class TestPersistYAML(unittest.TestCase):
+class TestYAML(unittest.TestCase):
     """Test numpy array write and read"""
 
     def test_dict(self):
         data = {1:'one', 'two': 2, 'tree': [1,2,'three']}
         foo = Foo(data)
+        bar = Bar()
         with h5tmp() as f:
-            writer = Writer(f, foo)
+            writer = Writer(f, from_object=foo)
             writer.yaml('data')
-            reader = Reader(f)
-            data_bis = reader.yaml('data')
-            self.assertDictEqual(data, data_bis)
+            reader = Reader(f, to_object=bar)
+            reader.yaml('data')
+            self.assertDictEqual(foo.data, bar.data)
 
 if __name__ == '__main__':
     unittest.main()

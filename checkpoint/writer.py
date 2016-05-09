@@ -41,9 +41,10 @@ def write_crs(group, name, list_of_items):
 
 class Writer:
 
-    def __init__(self, group, written_instance):
+    def __init__(self, group, from_object=None, from_dict=None):
         self.group = group
-        self.written_instance = written_instance
+        self.from_object = from_object
+        self.from_dict = from_dict
 
     def __call__(self, name, store_as='array'):
         if store_as == 'array':
@@ -61,24 +62,25 @@ class Writer:
         else:
             raise ValueError("No such type: %r" % (store_as,))
 
-    def array(self, name):
-        a = getattr(self.written_instance, name)
+    def array(self, name, data=None):
+        a = self._get(name, data)
         self.group.create_dataset(name, data=a)
 
     def arrays(self, *names):
+        assert self.from_object is not None or self.from_dict is not None
         for name in names:
             self.array(name)
 
-    def scalar(self, name):
-        s = getattr(self.written_instance, name)
+    def scalar(self, name, data=None):
+        s = self._get(name, data)
         self.group.create_dataset(name, data=s)
 
-    def crs(self, name):
-        list_of_items = getattr(self.written_instance, name)
+    def crs(self, name, data=None):
+        list_of_items = self._get(name, data)
         write_crs(self.group, name, list_of_items)
 
-    def dict(self, name):
-        d = getattr(self.written_instance, name)
+    def dict(self, name, data=None):
+        d = self._get(name, data)
         subgroup = self.group.create_group(name)
         self._write_obj_list('keys', subgroup, list(d.keys()))
         self._write_obj_list('values', subgroup, list(d.values()))
@@ -87,8 +89,8 @@ class Writer:
         else:
             subgroup.create_dataset('ordered', data=0)
 
-    def dict_crs(self, name):
-        d = getattr(self.written_instance, name)
+    def dict_crs(self, name, data=None):
+        d = self._get(name, data)
         subgroup = self.group.create_group(name)
         self._write_obj_list('keys', subgroup, list(d.keys()))
         write_crs(subgroup, "values", list(d.values()))
@@ -97,8 +99,8 @@ class Writer:
         else:
             subgroup.create_dataset('ordered', data=0)
 
-    def yaml(self, name):
-        obj = getattr(self.written_instance, name)
+    def yaml(self, name, data=None):
+        obj = self._get(name, data)
         data = yaml.dump(obj)
         dset = self.group.create_dataset(name, data=data)
         dset.attrs['format'] = 'yaml'
@@ -111,6 +113,16 @@ class Writer:
             set_iterable_converter(dset, obj_type)
         else:
             dset = group.create_dataset(name, data=obj_list)
+
+    def _get(self, name, data):
+        if data is not None:
+            return data
+        elif self.from_object is not None:
+            return getattr(self.from_object, name)
+        elif self.from_dict is not None:
+            return self.from_dict[name]
+        else:
+            raise ValueError("No data to write.")
 
 if __name__ == '__main__':
     doctest.testmod()

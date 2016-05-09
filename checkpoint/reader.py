@@ -39,9 +39,10 @@ def read_crs(group, name):
 
 class Reader:
 
-    def __init__(self, group, read_instance=None):
+    def __init__(self, group, to_object=None, to_dict=None):
         self.group = group
-        self.read_instance = read_instance
+        self.to_object = to_object
+        self.to_dict = to_dict
 
     def __call__(self, name, store_as='array'):
         if store_as == 'array':
@@ -60,29 +61,21 @@ class Reader:
             raise ValueError("No such type: %r" % (store_as,))
 
     def array(self, name):
-        a = self.group[name].value
-        if self.read_instance:
-            setattr(self.read_instance, name,  a)
-        else:
-            return a
+        data = self.group[name].value
+        return self._set(name, data)
 
     def arrays(self, *names):
+        assert self.to_object is not None or self.to_dict is not None
         for name in names:
             self.array(name)
 
     def scalar(self, name):
-        s = self.group[name][()]
-        if self.read_instance:
-            setattr(self.read_instance, name,  s)
-        else:
-            return s
+        data = self.group[name][()]
+        return self._set(name, data)
 
     def crs(self, name):
         list_of_items = read_crs(self.group, name)
-        if self.read_instance:
-            setattr(self.read_instance, name, list_of_items)
-        else:
-            return list_of_items
+        return self._set(name, list_of_items)
 
     def dict(self, name):
         subgroup = self.group[name]
@@ -93,10 +86,7 @@ class Reader:
             d = dict(zip(keys,values))
         else:
             d = OrderedDict(zip(keys,values))
-        if self.read_instance:
-            setattr(self.read_instance, name, d)
-        else:
-            return d
+        return self._set(name, d)
 
     def dict_crs(self, name):
         subgroup = self.group[name]
@@ -107,19 +97,21 @@ class Reader:
             d = dict(zip(keys,values))
         else:
             d = OrderedDict(zip(keys,values))
-        if self.read_instance:
-            setattr(self.read_instance, name, d)
-        else:
-            return d
+        return self._set(name, d)
 
     def yaml(self, name):
         data = self.group[name].value
         obj = yaml.load(data)
-        if self.read_instance:
-            setattr(self.read_instance, name, obj)
-        else:
-            return obj
+        return self._set(name, obj)
     
     def _read_obj_list(self, dset):
         t = get_iterable_converter(dset)
         return [t(obj) for obj in dset.value]
+
+    def _set(self, name, data):
+        if self.to_object:
+            setattr(self.to_object, name,  data)
+        elif self.to_dict:
+            self.to_dict[name] = data
+        else:
+            return data
