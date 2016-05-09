@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import h5py
 
-from clash.test.data import FooArray, FooScalar, FooCRS, \
+from checkpoint.test.data import FooArray, FooScalar, FooCRS, \
     FooDict, FooYAML, FooRecurse, FooDictCRS
 
 def h5tmp():

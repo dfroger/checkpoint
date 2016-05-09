@@ -1,14 +1,14 @@
 from setuptools import setup
-from clash import __version__
+from checkpoint import __version__
 
 setup(
-    name = 'clash',
+    name = 'checkpoint',
     version = __version__,
-    url = 'https://github.com/thni/clash',
-    description = 'Store Python Class data members in HDF5 files',
+    url = 'https://github.com/dfroger/checkpoint',
+    description = 'Checkpoints are like unit-tests inlined in your code.',
     license = 'BSD',
     author = 'David Froger',
     author_email = 'david.froger@mailoo.org',
-    packages = ['clash'],
+    packages = ['checkpoint'],
     install_requires = ['h5py', 'pyyaml',]
 )

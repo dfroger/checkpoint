@@ -1,7 +1,7 @@
 import numpy as np
 import h5py
 
-from clash import Dumper, create_loader
+from checkpoint import Dumper, create_loader
 
 class Baz:
 
