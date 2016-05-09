@@ -1,21 +1,21 @@
 import numpy as np
 import h5py
 
-from checkpoint import Dumper, create_loader
+from checkpoint import Writer, create_reader
 
 class Baz:
 
     def __init__(self):
         self.z = {1:'one', 'two': 2, 'tree': [1,2,'three']}
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.yaml('z')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.yaml('z')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(Baz, group)
-        loader.yaml('z')
+    def read(group):
+        foo, reader = create_reader(Baz, group)
+        reader.yaml('z')
         return foo
 
 class Bar:
@@ -25,16 +25,16 @@ class Bar:
         self.y = np.linspace(0,1,11)
         self.baz = Baz()
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.arrays('x', 'y')
-        dumper.recurse('baz')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.arrays('x', 'y')
+        writer.recurse('baz')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(Bar, group)
-        loader.arrays('x', 'y')
-        loader.recurse(Baz, 'baz')
+    def read(group):
+        foo, reader = create_reader(Bar, group)
+        reader.arrays('x', 'y')
+        reader.recurse(Baz, 'baz')
         return foo
 
 class Foo:
@@ -45,30 +45,30 @@ class Foo:
         self.d = {(1,2): [10,20], (3,4): [30,40]}
         self.bar = Bar()
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.scalar('a')
-        dumper.crs('l')
-        dumper.dict('d')
-        dumper.recurse('bar')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.scalar('a')
+        writer.crs('l')
+        writer.dict('d')
+        writer.recurse('bar')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(Foo, group)
-        loader.scalar('a')
-        loader.crs('l')
-        loader.dict('d')
-        loader.recurse(Bar, 'bar')
+    def read(group):
+        foo, reader = create_reader(Foo, group)
+        reader.scalar('a')
+        reader.crs('l')
+        reader.dict('d')
+        reader.recurse(Bar, 'bar')
         return foo
 
 def main():
     foo = Foo()
 
     with h5py.File('foo.h5', 'w') as f:
-        foo.dump(f)
+        foo.write(f)
 
     with h5py.File('foo.h5', 'r') as f:
-        foo_bis = Foo.load(f)
+        foo_bis = Foo.read(f)
 
     assert foo_bis.a == foo.a
     assert foo_bis.l == foo.l

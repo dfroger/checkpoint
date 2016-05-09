@@ -11,35 +11,35 @@ def h5tmp():
     return h5py.File('tmp.h5', driver='core', backing_store=False)
 
 class TestPersistArray(unittest.TestCase):
-    """Test numpy array dump and load"""
+    """Test numpy array write and read"""
 
     def test_int(self):
         data = np.arange(5)
         foo = FooArray(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooArray.load(f)
+            foo.write(f)
+            foo_bis = FooArray.read(f)
             np.testing.assert_array_equal(foo_bis.data, foo.data)
 
 class TestPersistScalar(unittest.TestCase):
-    """Test numpy array dump and load"""
+    """Test numpy array write and read"""
 
     def test_int(self):
         data = 5
         foo = FooScalar(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooScalar.load(f)
+            foo.write(f)
+            foo_bis = FooScalar.read(f)
             self.assertEqual(foo_bis.data, foo.data)
 
 class TestPersistCRS(unittest.TestCase):
-    """Test crs list dump and load"""
+    """Test crs list write and read"""
 
     def check(self, data):
         foo = FooCRS(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooCRS.load(f)
+            foo.write(f)
+            foo_bis = FooCRS.read(f)
             self.assertListEqual(foo_bis.data, foo.data)
 
     def test_list(self):
@@ -60,15 +60,15 @@ class TestPersistCRS(unittest.TestCase):
 
         foo = FooCRS(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooCRS.load(f)
+            foo.write(f)
+            foo_bis = FooCRS.read(f)
             for array1, array2 in zip(foo.data, foo_bis.data):
                 np.testing.assert_array_equal(array1, array2)
 
 class TestPersistDict(unittest.TestCase):
-    """Test dictionnary dump and load
+    """Test dictionnary write and read
     
-    Note that dumped Python type (int, float) are loaded as Numpy types
+    Note that write Python type (int, float) are loaded as Numpy types
     (int64, float32, ...). This should not be a problem with Numpy
     1.9.0 and greater https://github.com/numpy/numpy/issues/2951
     """
@@ -76,8 +76,8 @@ class TestPersistDict(unittest.TestCase):
     def check(self, data):
         foo = FooDict(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooDict.load(f)
+            foo.write(f)
+            foo_bis = FooDict.read(f)
             self.assertDictEqual(foo_bis.data, foo.data)
 
     def test_tuple2list(self):
@@ -107,19 +107,19 @@ class TestPersistDict(unittest.TestCase):
 
         foo = FooDict(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooDict.load(f)
+            foo.write(f)
+            foo_bis = FooDict.read(f)
             for array1, array2 in zip(foo.data.values(), foo_bis.data.values()):
                 np.testing.assert_array_equal(array1, array2)
 
 class TestPersistDictCRS(unittest.TestCase):
-    """Test crs list dump and load"""
+    """Test crs list write and read"""
 
     def check(self, data):
         foo = FooDictCRS(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooDictCRS.load(f)
+            foo.write(f)
+            foo_bis = FooDictCRS.read(f)
             self.assertDictEqual(foo_bis.data, foo.data)
 
     def test_list(self):
@@ -133,18 +133,18 @@ class TestPersistDictCRS(unittest.TestCase):
         self.check(data)
 
 class TestPersistYAML(unittest.TestCase):
-    """Test numpy array dump and load"""
+    """Test numpy array write and read"""
 
     def test_dict(self):
         data = {1:'one', 'two': 2, 'tree': [1,2,'three']}
         foo = FooYAML(data)
         with h5tmp() as f:
-            foo.dump(f)
-            foo_bis = FooYAML.load(f)
+            foo.write(f)
+            foo_bis = FooYAML.read(f)
             self.assertDictEqual(foo.data, foo_bis.data)
 
 class TestPersistRecurse(unittest.TestCase):
-    """Test recursive dump and load"""
+    """Test recursive write and read"""
 
     def test_foo_foo(self):
 
@@ -152,8 +152,8 @@ class TestPersistRecurse(unittest.TestCase):
         foo_recurse = FooRecurse(foo_array)
 
         with h5tmp() as f:
-            foo_recurse.dump(f)
-            foo_recurse_bis = FooRecurse.load(f)
+            foo_recurse.write(f)
+            foo_recurse_bis = FooRecurse.read(f)
 
         self.assertEqual(foo_recurse_bis.data.data, foo_recurse.data.data)
 

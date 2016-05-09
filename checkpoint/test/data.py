@@ -1,18 +1,18 @@
-from .. import Loader, Dumper, create_loader
+from .. import Reader, Writer, create_reader
 
 class FooArray:
 
     def __init__(self, data):
         self.data = data
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.array('data')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.array('data')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(FooArray, group)
-        loader.array('data')
+    def read(group):
+        foo, reader = create_reader(FooArray, group)
+        reader.array('data')
         return foo
 
 class FooScalar:
@@ -20,14 +20,14 @@ class FooScalar:
     def __init__(self, data):
         self.data = data
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.scalar('data')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.scalar('data')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(FooScalar, group)
-        loader.scalar('data')
+    def read(group):
+        foo, reader = create_reader(FooScalar, group)
+        reader.scalar('data')
         return foo
 
 class FooCRS:
@@ -35,14 +35,14 @@ class FooCRS:
     def __init__(self, data):
         self.data = data
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.crs('data')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.crs('data')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(FooCRS, group)
-        loader.crs('data')
+    def read(group):
+        foo, reader = create_reader(FooCRS, group)
+        reader.crs('data')
         return foo
 
 class FooDict:
@@ -50,14 +50,14 @@ class FooDict:
     def __init__(self, data):
         self.data = data
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.dict('data')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.dict('data')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(FooDict, group)
-        loader.dict('data')
+    def read(group):
+        foo, reader = create_reader(FooDict, group)
+        reader.dict('data')
         return foo
 
 class FooDictCRS:
@@ -65,14 +65,14 @@ class FooDictCRS:
     def __init__(self, data):
         self.data = data
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.dict_crs('data')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.dict_crs('data')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(FooDict, group)
-        loader.dict_crs('data')
+    def read(group):
+        foo, reader = create_reader(FooDict, group)
+        reader.dict_crs('data')
         return foo
 
 class FooYAML:
@@ -80,14 +80,14 @@ class FooYAML:
     def __init__(self, data):
         self.data = data
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.yaml('data')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.yaml('data')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(FooYAML, group)
-        loader.yaml('data')
+    def read(group):
+        foo, reader = create_reader(FooYAML, group)
+        reader.yaml('data')
         return foo
 
 class FooRecurse:
@@ -95,12 +95,12 @@ class FooRecurse:
     def __init__(self, data):
         self.data = data
 
-    def dump(self, group):
-        dumper = Dumper(group, self)
-        dumper.recurse('data')
+    def write(self, group):
+        writer = Writer(group, self)
+        writer.recurse('data')
 
     @staticmethod
-    def load(group):
-        foo, loader = create_loader(FooRecurse, group)
-        loader.recurse(FooScalar, 'data')
+    def read(group):
+        foo, reader = create_reader(FooRecurse, group)
+        reader.recurse(FooScalar, 'data')
         return foo
