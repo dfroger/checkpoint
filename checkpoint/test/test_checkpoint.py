@@ -3,44 +3,54 @@ import unittest
 import numpy as np
 import h5py
 
-from checkpoint.test.data import FooArray, FooScalar, FooCRS, \
-    FooDict, FooYAML, FooRecurse, FooDictCRS
+from checkpoint import Reader, Writer
 
 def h5tmp():
     """HDF5 file, in memory only: no written to the disk"""
     return h5py.File('tmp.h5', driver='core', backing_store=False)
 
-class TestPersistArray(unittest.TestCase):
+class Foo:
+
+    def __init__(self, data):
+        self.data = data
+
+class TestReadWriteArray(unittest.TestCase):
     """Test numpy array write and read"""
 
     def test_int(self):
         data = np.arange(5)
-        foo = FooArray(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooArray.read(f)
-            np.testing.assert_array_equal(foo_bis.data, foo.data)
+            writer = Writer(f, foo)
+            writer.array('data')
+            reader = Reader(f)
+            data_bis = reader.array('data')
+        np.testing.assert_array_equal(data, data_bis)
 
-class TestPersistScalar(unittest.TestCase):
-    """Test numpy array write and read"""
+class TestReadWriteScalar(unittest.TestCase):
+    """Test scalar write and read"""
 
     def test_int(self):
         data = 5
-        foo = FooScalar(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooScalar.read(f)
-            self.assertEqual(foo_bis.data, foo.data)
+            writer = Writer(f, foo)
+            writer.scalar('data')
+            reader = Reader(f)
+            data_bis = reader.scalar('data')
+            self.assertEqual(data, data_bis)
 
 class TestPersistCRS(unittest.TestCase):
     """Test crs list write and read"""
 
     def check(self, data):
-        foo = FooCRS(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooCRS.read(f)
-            self.assertListEqual(foo_bis.data, foo.data)
+            writer = Writer(f, foo)
+            writer.crs('data')
+            reader = Reader(f)
+            data_bis = reader.crs('data')
+            self.assertListEqual(data, data_bis)
 
     def test_list(self):
         data = [ [1,5,2], [6,0], [], [1,3,4], [7] ]
@@ -58,11 +68,13 @@ class TestPersistCRS(unittest.TestCase):
         data = [ np.array([1,5,2]), np.array([6,0]), np.array([]), 
                  np.array([1,3,4]), np.array([7,]) ]
 
-        foo = FooCRS(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooCRS.read(f)
-            for array1, array2 in zip(foo.data, foo_bis.data):
+            writer = Writer(f, foo)
+            writer.crs('data')
+            reader = Reader(f)
+            data_bis = reader.crs('data')
+            for array1, array2 in zip(data, data_bis):
                 np.testing.assert_array_equal(array1, array2)
 
 class TestPersistDict(unittest.TestCase):
@@ -74,11 +86,13 @@ class TestPersistDict(unittest.TestCase):
     """
 
     def check(self, data):
-        foo = FooDict(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooDict.read(f)
-            self.assertDictEqual(foo_bis.data, foo.data)
+            writer = Writer(f, foo)
+            writer.dict('data')
+            reader = Reader(f)
+            data_bis = reader.dict('data')
+            self.assertDictEqual(data, data_bis)
 
     def test_tuple2list(self):
         data = {(1,2): [10,20], (3,4): [30,40]}
@@ -105,22 +119,26 @@ class TestPersistDict(unittest.TestCase):
     def test_int2array(self):
         data = {12: np.array([1,2]), 34: np.array([3,4])}
 
-        foo = FooDict(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooDict.read(f)
-            for array1, array2 in zip(foo.data.values(), foo_bis.data.values()):
+            writer = Writer(f, foo)
+            writer.dict('data')
+            reader = Reader(f)
+            data_bis = reader.dict('data')
+            for array1, array2 in zip(data.values(), data_bis.values()):
                 np.testing.assert_array_equal(array1, array2)
 
 class TestPersistDictCRS(unittest.TestCase):
     """Test crs list write and read"""
 
     def check(self, data):
-        foo = FooDictCRS(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooDictCRS.read(f)
-            self.assertDictEqual(foo_bis.data, foo.data)
+            writer = Writer(f, foo)
+            writer.dict_crs('data')
+            reader = Reader(f)
+            data_bis = reader.dict_crs('data')
+            self.assertDictEqual(data, data_bis)
 
     def test_list(self):
         data = {
@@ -137,25 +155,13 @@ class TestPersistYAML(unittest.TestCase):
 
     def test_dict(self):
         data = {1:'one', 'two': 2, 'tree': [1,2,'three']}
-        foo = FooYAML(data)
+        foo = Foo(data)
         with h5tmp() as f:
-            foo.write(f)
-            foo_bis = FooYAML.read(f)
-            self.assertDictEqual(foo.data, foo_bis.data)
-
-class TestPersistRecurse(unittest.TestCase):
-    """Test recursive write and read"""
-
-    def test_foo_foo(self):
-
-        foo_array = FooScalar(5)
-        foo_recurse = FooRecurse(foo_array)
-
-        with h5tmp() as f:
-            foo_recurse.write(f)
-            foo_recurse_bis = FooRecurse.read(f)
-
-        self.assertEqual(foo_recurse_bis.data.data, foo_recurse.data.data)
+            writer = Writer(f, foo)
+            writer.yaml('data')
+            reader = Reader(f)
+            data_bis = reader.yaml('data')
+            self.assertDictEqual(data, data_bis)
 
 if __name__ == '__main__':
     unittest.main()

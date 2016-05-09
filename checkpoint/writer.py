@@ -103,10 +103,6 @@ class Writer:
         dset = self.group.create_dataset(name, data=data)
         dset.attrs['format'] = 'yaml'
 
-    def recurse(self, name):
-        obj = getattr(self.written_instance, name)
-        obj.write( self.group.create_group(name) )
-
     def _write_obj_list(self, name, group, obj_list):
         obj = obj_list[0]
         obj_type = type(obj)

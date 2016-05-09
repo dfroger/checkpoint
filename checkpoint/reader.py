@@ -120,13 +120,6 @@ class Reader:
         else:
             return obj
     
-    def recurse(self, RecursivelyReadClass, name):
-        inst = RecursivelyReadClass.read(self.group[name])
-        if self.read_instance:
-            setattr(self.read_instance, name, inst)
-        else:
-            return inst
-
     def _read_obj_list(self, dset):
         t = get_iterable_converter(dset)
         return [t(obj) for obj in dset.value]
