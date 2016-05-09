@@ -46,19 +46,19 @@ class Writer:
         self.from_object = from_object
         self.from_dict = from_dict
 
-    def __call__(self, name, store_as='array'):
+    def __call__(self, name, data=None, store_as='array'):
         if store_as == 'array':
-            self.array(name)
+            self.array(name, data=data)
         elif store_as == 'scalar':
-            self.scalar(name)
+            self.scalar(name, data=data)
         elif store_as == 'crs':
-            self.crs(name)
+            self.crs(name, data=data)
         elif store_as == 'dict':
-            self.dict(name)
+            self.dict(name, data=data)
         elif store_as == 'dict_crs':
-            self.dict_crs(name)
+            self.dict_crs(name, data=data)
         elif store_as == 'yaml':
-            self.yaml(name)
+            self.yaml(name, data=data)
         else:
             raise ValueError("No such type: %r" % (store_as,))
 
