@@ -1,0 +1,33 @@
+package:
+  name: checkpoint
+  version: 0.1.0
+
+source:
+  fn: checkpoint-0.1.0.tar.gz
+  url: https://github.com/dfroger/checkpoint/archive/0.1.0.tar.gz
+  md5: cb767c7961b3e0783782f94ce4bfa61f
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - pip
+    - python
+    - h5py
+    - pyyaml
+
+  run:
+    - python
+    - python
+    - h5py
+    - pyyaml
+
+test:
+    imports:
+        - checkpoint
+
+about:
+  home: https://github.com/dfroger/checkpoint
+  license: BSD
+  summary: Checkpoints are like unit-tests inlined in your code.
