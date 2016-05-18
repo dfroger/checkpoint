@@ -42,15 +42,17 @@ def subnames(fullname):
     for n in range(len(parts),-1,-1):
         yield '.'.join(parts[:n])
 
-def activate_checkpoints(expected_dir, actual_dir, mode, excluded=[]):
+def activate_checkpoints(expected_dir, actual_dir, mode, excluded=[],
+                         verbose=False):
     global _is_active, _mode, _expected_dir, _excluded
     _is_active = True
     _mode = mode
     _expected_dir = expected_dir
     _actual_dir = actual_dir
     _excluded = excluded
-    print("checkpoint: directory of expected data is:", expected_dir)
-    print("checkpoint: directory of actual data is:", actual_dir)
+    if verbose:
+        print("checkpoint: directory of expected data is:", expected_dir)
+        print("checkpoint: directory of actual data is:", actual_dir)
 
 def _is_excluded(label, name):
     checkpoint_name = label + '.' + name
