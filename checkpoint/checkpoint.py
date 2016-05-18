@@ -83,10 +83,6 @@ class CheckPoint:
             self.expected_reader = Reader(self.expected_f)
 
             actual_fp = Path(_actual_dir) / self.filename
-            self.actual_f = h5py.File(str(actual_fp), 'w')
-            self.actual_writer = Writer(self.actual_f,
-                                        from_object = self.from_object,
-                                        from_dict = self.from_dict)
         else:
             raise ValueError("No such mode: {!r}".format(_mode))
         return self
@@ -98,7 +94,6 @@ class CheckPoint:
             self.expected_f.close()
         elif _mode == 'r':
             self.expected_f.close()
-            self.actual_f.close()
 
     def __call__(self, name, data=None, store_as='array'):
         if not self.is_active(name):
@@ -107,7 +102,6 @@ class CheckPoint:
         if _mode == 'w':
             self.expected_writer(name, data=data, store_as=store_as)
         elif _mode == 'r':
-            self.actual_writer(name, data=data, store_as=store_as)
             expected = self.expected_reader(name, store_as=store_as)
             if data is not None:
                 actual = data
