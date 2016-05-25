@@ -121,8 +121,6 @@ class CheckPoint:
 
     def check_data(self, actual, expected, store_as):
         if store_as == 'array':
-            if len(expected.shape) == len(actual.shape) + 1:
-                expected= expected[0,...]      
             np.testing.assert_allclose(actual, expected,
                                        rtol=_relative_tolerance,
                                        atol=_absolute_tolerance)
